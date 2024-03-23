@@ -9,13 +9,18 @@ export const authorize = (roles = []) => {
         const authHeaders = req.headers["authorization"]
         const token = authHeaders && authHeaders.split(" ")[1]
         if (token == null) return res.sendStatus(401) // Unauthorized
-        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-            console.log(user)
-            if (err) return res.sendStatus(403)
+        let responseSent = false
+        jwt.verify(token, 'secret', (err, user) => {
+            if (err) {
+                responseSent = true
+                return res.status(403).json({
+                    message: 'Invalid token'
+                })
+            }
             req.user = user
         })
-        if (roles.length && !roles.includes(req.user.role)) {
-            return res.status(401).json({
+        if (roles.length && (!req.user || !roles.includes(req.user.role))) {
+            return !responseSent && res.status(401).json({
                 message: 'Unauthorized role'
             })
         }

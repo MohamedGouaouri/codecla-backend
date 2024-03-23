@@ -61,6 +61,7 @@ managersRouter.post("/login", async (req, res) => {
   if (!validationResult.error) {
     const { email, password } = req.body
     const manager = await Manager.findOne({ email: email }).exec()
+    console.log(manager)
     if (!manager) {
       return res.status(404).json({
         status: "error",
@@ -83,7 +84,7 @@ managersRouter.post("/login", async (req, res) => {
     const token = jwt.sign({
       id: manager._id,
       role: roles.Manager
-    }, process.env.JWT_SECRET | 'secret', {
+    }, 'secret', {
       expiresIn: 36000
     })
 

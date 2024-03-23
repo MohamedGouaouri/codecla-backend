@@ -28,13 +28,20 @@ const testCaseSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
+const codeTextSchema = new mongoose.Schema({
+  text: {
+    type: String, required: true,
+  },
+  language: {
+    type: String, required: true, default: 'js'
+  },
+})
+
 const codeSchema = new mongoose.Schema({
   function_name: {
     type: String, required: true,
   },
-  code_text: {
-    type: String, required: true,
-  },
+  code_text: [codeTextSchema],
   inputs: [functionInputDefSchema],
 })
 
@@ -48,7 +55,9 @@ const challengeSchema = new mongoose.Schema({
   description: {
     type: String, required: true,
   },
-
+  level: {
+    type: String, required: true,
+  },
   creator: {
     type: mongoose.Types.ObjectId,
     ref: 'Manager',

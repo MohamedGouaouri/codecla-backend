@@ -1,13 +1,17 @@
 import * as challengeService from "../services/challenge.service.js";
 
 export const getAll = async (req, res) => {
-  const serviceResponse = await challengeService.getAll();
+  const user = req.user
+  if (!user) return res.end()
+  const serviceResponse = await challengeService.getAll(user);
   return res
     .status(serviceResponse.getHttpStatus())
     .json(serviceResponse.getHttpResponse());
 }
 export const createChallenge = async (req, res) => {
-  const serviceResponse = await challengeService.createChallenge(req.body);
+  // TODO:  Request validation
+  const {id: creator} = req.user
+  const serviceResponse = await challengeService.createChallenge(req.body, creator);
   return res
     .status(serviceResponse.getHttpStatus())
     .json(serviceResponse.getHttpResponse());

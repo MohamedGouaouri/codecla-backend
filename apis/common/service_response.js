@@ -19,14 +19,17 @@ export class ServiceResponseSuccess {
 
 export class ServiceResponseFailure {
     constructor(
+        message,
         error,
     ) {
+        this.message = message;
         this.error = error;
     }
     getHttpResponse() {
         return {
             status: 'error',
-            error: this.error.getMessage(),
+            message: message,
+            error: this.error.message,
         }
     }
     getHttpStatus() {
