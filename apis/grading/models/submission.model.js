@@ -15,6 +15,7 @@ const submissionSchema = new mongoose.Schema({
     },
     grade: {
         type: Number,
+        default: 0,
     },
     isPassed: {
         type: Boolean,

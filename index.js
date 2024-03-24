@@ -8,10 +8,6 @@ import { PORT } from './config/server.config.js';
 
 const app = express();
 dotenv.config();
-
-// connect to the database
-connectDatabase();
-
 app.get("/", (req, res) => {
   res.send("server running");
 });
@@ -22,9 +18,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/auth", authRouter)
 app.use("/api/challenges", contentRouter)
 app.use("/api/grading", gradingRouter);
+// connect to the database
+connectDatabase().then(r => {
+  app.listen(PORT, (_) =>
+      console.log(`Server up and running on port ${PORT}`)
+  );
+});
 
 
 
-app.listen(PORT, (_) =>
-  console.log(`Server up and running on port ${PORT}`)
-);
+
+
+
