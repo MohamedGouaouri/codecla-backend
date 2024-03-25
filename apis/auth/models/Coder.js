@@ -8,6 +8,7 @@ const CoderSchema = new mongoose.Schema({
     password: { type: String, required: true },
     about: { type: String, required: false, default: '' },
     rank: { type: Number, required: false },
+    avatar_url: { type: String, required: false, default: '' },
 }, {
     collection: "coders"
 })

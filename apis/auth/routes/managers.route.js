@@ -4,6 +4,10 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { roles } from '../../middlewares/auth/roles.js'
 import { Manager } from '../models/Manager.js'
+import {authorize} from "../../middlewares/auth/authorize.middleware.js";
+import {fireBaseUpload, upload} from "../../common/upload.js";
+import {Coder} from "../models/Coder.js";
+import codersRouter from "./coders.route.js";
 
 const managersRouter = express.Router();
 
@@ -101,6 +105,40 @@ managersRouter.post("/login", async (req, res) => {
     })
   }
 })
+
+managersRouter.put("/profile", authorize([roles.Manager]), upload.single('avatar'), async (req, res) => {
+  const {id} = req.user
+  try{
+    const downloadUrl = await fireBaseUpload(req)
+    // Search for coder
+    const manager = await Manager.findById(id).select('-__v').exec()
+    if (!manager) {
+      return res.status(404).json({
+        status: "error",
+        message: `No manager found`
+      })
+    }
+    const {first_name, last_name, about} = req.body
+    if(downloadUrl) manager.avatar_url  = downloadUrl
+    if (first_name) manager.first_name = first_name
+    if (last_name) manager.last_name = last_name
+    if (about) manager.about = about
+
+    await manager.save()
+    return res.json({
+      status: "success",
+      message: "manager profile updated",
+      data: manager
+    })
+  }catch (err) {
+    console.error(err)
+    res.status(500).json({
+      status: "error",
+      message: "Error updating the profile",
+      error: err.message,
+    })
+  }
+});
 
 
 export default managersRouter;

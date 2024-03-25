@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken'
 import { Coder } from '../models/Coder.js'
 import { roles } from '../../middlewares/auth/roles.js'
 import { authorize } from '../../middlewares/auth/authorize.middleware.js'
+import {fireBaseUpload, upload} from "../../common/upload.js";
+
 
 const codersRouter = express.Router();
 
@@ -134,12 +136,43 @@ codersRouter.post("/login", async (req, res) => {
 })
 
 
+// TODO: Add validator
+codersRouter.put("/profile", authorize([roles.Coder]), upload.single('avatar'), async (req, res) => {
+  const {id} = req.user
+  try{
+    const downloadUrl = await fireBaseUpload(req)
+   // Search for coder
+    const coder = await Coder.findById(id).select('-__v').exec()
+    if (!coder) {
+      return res.status(404).json({
+        status: "error",
+        message: `No coder found`
+      })
+    }
+    const {first_name, last_name, about} = req.body
+    if(downloadUrl) coder.avatar_url  = downloadUrl
+    if (first_name) coder.first_name = first_name
+    if (last_name) coder.last_name = last_name
+    if (about) coder.about = about
+
+    await coder.save()
+    return res.json({
+      status: "success",
+      message: "coder profile updated",
+      data: coder
+    })
+  }catch (e) {
+    res.status(500).end()
+
+  }
+});
+
 
 const getLastCoderRank = async () => {
   const ranks = await Coder.find({}).select('rank',).sort({
     'rank': -1,
   }).exec();
-  if (!ranks || ranks.length == 0) {
+  if (!ranks || ranks.length === 0) {
     return 1
   }
   return ranks[0].rank;
