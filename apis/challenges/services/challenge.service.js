@@ -84,6 +84,51 @@ export const getAllCategories = async () => {
   )
 }
 
+export const getTrendingCategories = async () => {
+  // const categories = await Challenge.distinct('category')
+  const aggregatedCategoryStats = await Submission.aggregate([
+    {
+      $match: { isPassed: true } // Filter for passed submissions
+    },
+    {
+      $lookup: {
+        from: "challenges", // Assuming the collection name is "challenges"
+        localField: "challenge",
+        foreignField: "_id",
+        as: "challengeDetails"
+      }
+    },
+    {
+      $unwind: "$challengeDetails"
+    },
+    // Group by challenge category and count the passed submissions
+    {
+      $group: {
+        _id: "$challengeDetails.category",
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $addFields: {
+        category: "$_id"
+      }
+    },
+    // Sort by total passed submissions in descending order
+    {
+      $sort: { totalPassedSubmissions: -1 }
+    },
+    {
+      $project: {
+        _id: 0,
+        category: 1,
+        count: 1,
+      }
+    }
+  ]).exec();
+  return new ServiceResponseSuccess(aggregatedCategoryStats)
+}
+
+
 const getChallengeStatus = async (coderId, challengeId) => {
   const acceptedSubmission = await Submission.findOne({ coder: coderId, challenge: challengeId, isPassed: true }).exec();
   if (acceptedSubmission) return 'Completed';

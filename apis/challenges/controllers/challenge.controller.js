@@ -42,9 +42,11 @@ export const getChallengeTestsById = async (req, res) => {
     .status(serviceResponse.getHttpStatus())
     .json(serviceResponse.getHttpResponse());
 }
-export const getChallengesByCategorie = async (req, res) => {
-  const serviceResponse = await challengeService.getChallengesByCategorie(req.params.category);
+
+export const getTrendingCategories = async (req, res) => {
+  const serviceResponse = await challengeService.getTrendingCategories();
   return res
-    .status(serviceResponse.getHttpStatus())
-    .json(serviceResponse.getHttpResponse());
+      .status(serviceResponse.getHttpStatus())
+      .json(serviceResponse.getHttpResponse());
 }
+
