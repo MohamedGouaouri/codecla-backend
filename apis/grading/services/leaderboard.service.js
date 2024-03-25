@@ -1,6 +1,7 @@
 import {Submission} from "../models/submission.model.js";
 import mongoose from "mongoose";
 import {ServiceResponseSuccess} from "../../common/service_response.js";
+import {Coder} from "../../auth/models/Coder.js";
 
 
 export const getLeaderboard = async () => {
@@ -84,4 +85,16 @@ export const getCoderRank = async (coder_id) => {
     ]).exec();
     if (coderRank.length === 0) return 0
     return coderRank[0].rank || 0
+}
+
+export const getTopK = async (k) => {
+    const topKCoders = await Coder
+        .find()
+        .sort({
+            rank: 1,
+        })
+        .limit(k)
+        .select('-__v')
+        .exec()
+    return new ServiceResponseSuccess(topKCoders)
 }
