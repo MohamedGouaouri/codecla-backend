@@ -1,5 +1,6 @@
 import {Submission} from "../models/submission.model.js";
 import mongoose from "mongoose";
+import {ServiceResponseSuccess} from "../../common/service_response.js";
 
 
 export const getLeaderboard = async () => {
@@ -43,7 +44,7 @@ export const getLeaderboard = async () => {
             $sort: { totalScore: -1 }
         }
     ]).exec();
-    console.log(result)
+    return new ServiceResponseSuccess(result)
 }
 
 
