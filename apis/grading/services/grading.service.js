@@ -11,6 +11,8 @@ import { PY_RCE_SERVER, JS_RCE_SERVER } from '../../../config/server.config.js';
 import { ServiceResponseFailure, ServiceResponseSuccess } from '../../common/service_response.js';
 import { ResourceNotFoundException, SubmissionFailedException } from '../../common/exceptions.js';
 import { Submission } from '../models/submission.model.js';
+import {Coder} from "../../auth/models/Coder.js";
+import {getCoderRank} from "./leaderboard.service.js";
 
 export const grade = async (submission, coder_id) => {
     /**
@@ -71,6 +73,10 @@ export const grade = async (submission, coder_id) => {
                 submission.isPassed = true
                 submission.grade = score
                 await submission.save()
+                // Update coder rank
+                await Coder.findByIdAndUpdate(coder_id, {
+                    rank: await getCoderRank(coder_id)
+                }).exec()
                 return new ServiceResponseSuccess(
                     rceResp,
                 )

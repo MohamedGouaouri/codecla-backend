@@ -52,7 +52,7 @@ codersRouter.post("/register", async (req, res) => {
   const validationResult = validator.validate(data)
   if (!validationResult.error) {
     const { first_name, last_name , email, password } = req.body
-    const salt = await bcrypt.genSalt(parseInt(process.env.ROUNDS | 10));
+    const salt = await bcrypt.genSalt(parseInt(process.env.ROUNDS || 10));
     const hashPassowrd = await bcrypt.hash(password, salt)
     try {
       await Coder.create({
@@ -60,7 +60,6 @@ codersRouter.post("/register", async (req, res) => {
         last_name: last_name,
         email: email,
         password: hashPassowrd,
-        rank: await getLastCoderRank() + 1
       })
       res.json({
         status: "success",
@@ -167,15 +166,5 @@ codersRouter.put("/profile", authorize([roles.Coder]), upload.single('avatar'), 
   }
 });
 
-
-const getLastCoderRank = async () => {
-  const ranks = await Coder.find({}).select('rank',).sort({
-    'rank': -1,
-  }).exec();
-  if (!ranks || ranks.length === 0) {
-    return 1
-  }
-  return ranks[0].rank;
-}
 
 export default codersRouter;

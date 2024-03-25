@@ -4,14 +4,15 @@ import { Submission } from "../../grading/models/submission.model.js";
 import { roles } from "../../middlewares/auth/roles.js";
 import { Challenge } from "../models/Challenge.js";
 
-export const getAll = async (user) => {
+export const getAll = async (user, filters) => {
   const { id, role } = user;
+  const {category} = filters
   let challenges;
 
   switch (role) {
     case roles.Manager:
       challenges = await Challenge
-        .find({ creator: id })
+        .find({ creator: id, category: category })
         .select(['title', 'category', 'description', 'level', 'creator'])
         .populate('creator')
         .exec();
@@ -19,7 +20,7 @@ export const getAll = async (user) => {
     
     case roles.Coder:
       challenges = await Challenge
-        .find()
+        .find({category: category})
         .select(['title', 'category', 'description', 'level', 'creator'])
         .exec();
 
@@ -76,6 +77,12 @@ export const getChallengesByCategory = async (category) => {
     return new ServiceResponseFailure(new DBOperationException());
   }
 };
+
+export const getAllCategories = async () => {
+  return new ServiceResponseSuccess(
+      await Challenge.distinct('category')
+  )
+}
 
 const getChallengeStatus = async (coderId, challengeId) => {
   const acceptedSubmission = await Submission.findOne({ coder: coderId, challenge: challengeId, isPassed: true }).exec();
