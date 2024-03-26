@@ -5,49 +5,36 @@ import {Coder} from "../../auth/models/Coder.js";
 
 
 export const getLeaderboard = async () => {
-    const result =  await Submission.aggregate([
-        {
-            $match: {isPassed: true},
-        },
-        {
-            $group: {
-                _id: "$coder",
-                totalScore: { $sum: "$grade" },
-                totalChallenges: { $addToSet: "$challenge" } // Count distinct challenges
-            }
-        },
-        // Count the number of solved challenges
-        {
-            $addFields: {
-                numSolvedChallenges: { $size: "$totalChallenges" }
-            }
-        },
-        // Populate the coder details
-        {
-            $lookup: {
-                from: "coders", // Assuming the collection name is "coders"
-                localField: "_id",
-                foreignField: "_id",
-                as: "coder"
-            }
-        },
-        // Project to include only necessary fields from coder details
-        {
-            $project: {
-                _id: 0,
-                "coder": 1,
-                totalScore: 1,
-                numSolvedChallenges: 1
-            }
-        },
-        // Sort the leaderboard by total score in descending order
-        {
-            $sort: { totalScore: -1 }
-        }
-    ]).exec();
-    return new ServiceResponseSuccess(result)
+    let leaderboard = await Coder
+        .find()
+        .sort({
+            score: -1
+        })
+        .select('-__v -password -email')
+        .exec()
+    
+    leaderboard = await mergeSolvedChallenges(leaderboard)
+    return new ServiceResponseSuccess(leaderboard)
 }
 
+export const getCoderScore = async (coder_id) => {
+    const coder = await Coder
+        .findById(coder_id).exec()
+    
+    if (!coder) return 0
+    return coder.score || 0
+}
+
+export const getCoderSolvedChallenges = async (coder_id) => {
+    const submissions = await Submission
+        .find({
+            coder: coder_id,
+            isPassed: true
+        }).exec()
+    
+    if (!submissions) return 0
+    return submissions.length
+}
 
 export const getCoderRank = async (coder_id) => {
     const coderRank =  await Submission.aggregate([
@@ -83,8 +70,8 @@ export const getCoderRank = async (coder_id) => {
         },
 
     ]).exec();
-    if (coderRank.length === 0) return 0
-    return coderRank[0].rank || 0
+    if (coderRank.length === 0) return await getLastAssignableRank()
+    return coderRank[0].rank || await getLastAssignableRank()
 }
 
 export const getTopK = async (k) => {
@@ -94,7 +81,28 @@ export const getTopK = async (k) => {
             rank: 1,
         })
         .limit(k)
-        .select('-__v')
+        .select('-__v -email -password')
         .exec()
     return new ServiceResponseSuccess(topKCoders)
+}
+
+
+const getLastAssignableRank = async () => {
+    const rankedCoders = await Coder
+        .find()
+        .sort({
+            rank: -1,
+        })
+        .exec()
+    if(!rankedCoders || rankedCoders.length === 0) return 1;
+    return rankedCoders[0] + 1
+}
+
+const mergeSolvedChallenges = async (leaderboard) => {
+    for (let i = 0; i < leaderboard.length; i++) {
+        const coder = leaderboard[i].toObject();
+        coder['solved_challenges'] = await getCoderSolvedChallenges(coder._id);
+        leaderboard[i] = coder;
+      }
+      return leaderboard;
 }

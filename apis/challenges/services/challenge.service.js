@@ -8,11 +8,15 @@ export const getAll = async (user, filters) => {
   const { id, role } = user;
   const {category} = filters
   let challenges;
-
+  let query = {}
+  if (category && category != 'All') {
+    query = {...query, category}
+  }
   switch (role) {
     case roles.Manager:
+      query = {...query, creator: id}
       challenges = await Challenge
-        .find({ creator: id, category: category })
+        .find(query)
         .select(['title', 'category', 'description', 'level', 'creator'])
         .populate('creator')
         .exec();
@@ -20,11 +24,14 @@ export const getAll = async (user, filters) => {
     
     case roles.Coder:
       challenges = await Challenge
-        .find({category: category})
+        .find(query)
         .select(['title', 'category', 'description', 'level', 'creator'])
         .exec();
 
+      challenges = challenges ? challenges.map(challenge => challenge.toObject()) : [];
       challenges = challenges ? await mergeStatus(challenges, id) : [];
+      challenges = challenges ? await mergeRate(challenges) : [];
+
       return new ServiceResponseSuccess(challenges);
   
     default:
@@ -139,10 +146,27 @@ const getChallengeStatus = async (coderId, challengeId) => {
   return 'Waiting';
 };
 
+const getChallengeSolutionRate = async (challengeId) => {
+  const sumbissions = await Submission.find({
+    challenge: challengeId,
+    isPassed: true,
+  }).exec()
+  return sumbissions.length
+}
+
 const mergeStatus = async (challenges, coderId) => {
   for (let i = 0; i < challenges.length; i++) {
-    const challenge = challenges[i].toObject();
+    const challenge = challenges[i];
     challenge['status'] = await getChallengeStatus(challenge._id, coderId);
+    challenges[i] = challenge;
+  }
+  return challenges;
+};
+
+const mergeRate = async (challenges) => {
+  for (let i = 0; i < challenges.length; i++) {
+    const challenge = challenges[i];
+    challenge['solution_rate'] = await getChallengeSolutionRate(challenge._id);
     challenges[i] = challenge;
   }
   return challenges;

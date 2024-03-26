@@ -12,7 +12,7 @@ import { ServiceResponseFailure, ServiceResponseSuccess } from '../../common/ser
 import { ResourceNotFoundException, SubmissionFailedException } from '../../common/exceptions.js';
 import { Submission } from '../models/submission.model.js';
 import {Coder} from "../../auth/models/Coder.js";
-import {getCoderRank} from "./leaderboard.service.js";
+import {getCoderRank, getCoderScore} from "./leaderboard.service.js";
 
 export const grade = async (submission, coder_id) => {
     /**
@@ -75,7 +75,10 @@ export const grade = async (submission, coder_id) => {
                 await submission.save()
                 // Update coder rank
                 await Coder.findByIdAndUpdate(coder_id, {
-                    rank: await getCoderRank(coder_id)
+                    $inc: {
+                        'score': score
+                    }
+
                 }).exec()
                 return new ServiceResponseSuccess(
                     rceResp,

@@ -5,6 +5,8 @@ import dotenv from 'dotenv'
 import authRouter from './apis/auth/routes/auth.router.js';
 import gradingRouter from './apis/grading/routes/grader.route.js';
 import { PORT } from './config/server.config.js';
+import cors from 'cors'
+import morgan from 'morgan';
 
 const app = express();
 dotenv.config();
@@ -14,7 +16,10 @@ app.get("/", (req, res) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(cors({
+  origin: '*'
+}))
+app.use(morgan('tiny'));
 app.use("/api/auth", authRouter)
 app.use("/api/challenges", contentRouter)
 app.use("/api/grading", gradingRouter);
