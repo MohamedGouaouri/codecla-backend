@@ -30,7 +30,8 @@ export const createChallenge = async (req, res) => {
 }
 
 export const getChallengeById = async (req, res) => {
-  const serviceResponse = await challengeService.getChallengeById(req.params.id);
+  const challengeId = req.params.id
+  const serviceResponse = await challengeService.getChallengeById(challengeId, req.user);
   return res
     .status(serviceResponse.getHttpStatus())
     .json(serviceResponse.getHttpResponse());

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { codeTextSchema } from '../../challenges/models/Challenge.js';
 
 const submissionSchema = new mongoose.Schema({
     coder: {
@@ -9,6 +10,7 @@ const submissionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Challenge'
     },
+    code: codeTextSchema,
     submittedAt: {
         type: Date,
         default: new Date()

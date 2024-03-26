@@ -28,7 +28,7 @@ const testCaseSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-const codeTextSchema = new mongoose.Schema({
+export const codeTextSchema = new mongoose.Schema({
   text: {
     type: String, required: true,
   },

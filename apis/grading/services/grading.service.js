@@ -72,6 +72,10 @@ export const grade = async (submission, coder_id) => {
                 const score = await calculateScore(challenge, rceResp)
                 submission.isPassed = true
                 submission.grade = score
+                submission.code = {
+                    language: lang,
+                    code: code,
+                }
                 await submission.save()
                 // Update coder rank
                 await Coder.findByIdAndUpdate(coder_id, {

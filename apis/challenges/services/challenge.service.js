@@ -51,12 +51,34 @@ export const createChallenge = async (challenge, creator) => {
   }
 };
 
-export const getChallengeById = async (challengeId) => {
+export const getChallengeById = async (challengeId, user) => {
   try {
-    const challenge = await Challenge.findById(challengeId, '-__v');
-    if (!challenge)
-      return new ServiceResponseFailure(new ResourceNotFoundException('Challenge not found'));
-    return new ServiceResponseSuccess(challenge);
+    let challenge = await Challenge.findById(challengeId, '-__v').exec();
+    if (!challenge) return new ServiceResponseFailure(new ResourceNotFoundException('Challenge not found'));
+    switch (user.role) {
+      case roles.Manager:
+        return new ServiceResponseSuccess(challenge);
+      
+      case roles.Coder:
+        challenge = challenge.toObject()
+        challenge['status'] = await getChallengeStatus(user.id, challengeId)
+        if (challenge['status'] == 'Completed') {
+          // Get user code
+          const submission = await Submission.findOne({
+            coder: user.id,
+            challenge: challengeId,
+            isPassed: true,
+          })
+          if (submission) {
+            challenge['submission'] = submission.toObject()
+          }
+        }
+        return new ServiceResponseSuccess(challenge);
+    
+      default:
+        return new ServiceResponseSuccess([]);
+    }
+    
   } catch (e) {
     console.error(e);
     return new ServiceResponseFailure(new DBOperationException());
