@@ -85,17 +85,6 @@ export const getChallengeById = async (challengeId, user) => {
   }
 };
 
-export const getChallengeTestsById = async (challengeId) => {
-  try {
-    const challenge = await Challenge.findById(challengeId);
-    if (!challenge)
-      return new ServiceResponseFailure(new ResourceNotFoundException('Challenge not found'));
-    return new ServiceResponseSuccess({ func_name: challenge.func_name, tests: challenge.tests });
-  } catch (e) {
-    console.error(e);
-    return new ServiceResponseFailure(new DBOperationException());
-  }
-};
 
 export const getChallengesByCategory = async (category) => {
   try {

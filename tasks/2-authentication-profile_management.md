@@ -24,6 +24,8 @@ which can be either `Manager` or `Coder`
 This middleware will be very important to guard your next endpoints
 - Create and express middleware that takes the set of authorized roles as parameter and
 based on the token present in the request, it `allows` or `denies` the request.
+- The middleware should **inject** user info extracted from the token to the request object.
+
 
 
 #### 4. Profile management

@@ -9,7 +9,7 @@ he platform caters to two primary user roles: **Coders** and **Managers**. Manag
 **Challenges** by creating, updating, and deleting them. 
 Both **Coders** and **Managers** possess basic account information such as first name, last name, email (which should be unique for that user), password, and an optional avatar. 
 Coders, however, have additional pertinent attributes including a description field allowing them to express their passion and interests, and a score field crucial for the application's 
-**Leaderboard**.
+leaderboard.
 
 
 The **Challenge** entity represents a coding challenge and includes attributes such as a title, category (e.g., data structures, graphs), 
@@ -24,6 +24,9 @@ These **FunctionInputDefinitions** consist of a name and a type, aiding **Coders
 
 **TestCases** are used to evaluate Coders' submissions against predefined inputs and expected outputs. 
 Each **TestCase** is assigned a weight value between 0 and 1, indicating its importance relative to other TestCases. Furthermore, **TestCases** consist of a set of **FunctionInputValues** representing the inputs for the function being tested, each with a name and corresponding value.
+
+The **Coder** can submit his code for grading, on submit, a **Submission** will be created, it's related to a specific challenge
+and contains information about the submission time, whether it successfully passed the grading and also the finale score after grading.
 
 
 ### Tasks

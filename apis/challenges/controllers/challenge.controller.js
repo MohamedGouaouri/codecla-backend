@@ -37,12 +37,6 @@ export const getChallengeById = async (req, res) => {
     .json(serviceResponse.getHttpResponse());
 }
 
-export const getChallengeTestsById = async (req, res) => {
-  const serviceResponse = await challengeService.getChallengeTestsById(req.params.id);
-  return res
-    .status(serviceResponse.getHttpStatus())
-    .json(serviceResponse.getHttpResponse());
-}
 
 export const getTrendingCategories = async (req, res) => {
   const serviceResponse = await challengeService.getTrendingCategories();
