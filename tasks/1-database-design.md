@@ -7,7 +7,7 @@ to do the subsequent tasks
 ### CodeCLA database description
 he platform caters to two primary user roles: **Coders** and **Managers**. Managers hold the responsibility of overseeing their designated 
 **Challenges** by creating, updating, and deleting them. 
-Both **Coders** and **Managers** possess basic account information such as first name, last name, email, password, and an optional avatar. 
+Both **Coders** and **Managers** possess basic account information such as first name, last name, email (which should be unique for that user), password, and an optional avatar. 
 Coders, however, have additional pertinent attributes including a description field allowing them to express their passion and interests, and a score field crucial for the application's 
 **Leaderboard**.
 
@@ -31,4 +31,6 @@ Here's the list of tasks
 
 - Extract the entities along with their relationships.
 - Draw the diagram of the system.
+- Create `mongoose` models in your `express` backend app.
+
 
