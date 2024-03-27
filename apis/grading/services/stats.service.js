@@ -3,11 +3,37 @@ import mongoose from "mongoose";
 import {ServiceResponseSuccess} from "../../common/service_response.js";
 import {Challenge} from "../../challenges/models/Challenge.js";
 
-export const getCoderHeatmap = async (coder_id) => {
+export const getCoderHeatmap = async (coder_id, {start_date, end_date}) => {
+
+    const currentDate = new Date();
+
+    // Check if start date is null
+    if (!start_date) {
+            // Set start date to current date minus one year
+            start_date = new Date(currentDate);
+            start_date.setFullYear(start_date.getFullYear() - 1);
+    } else {
+        start_date = new Date(start_date)
+    }
+
+    // Check if end date is null
+    if (!end_date) {
+            // Set end date to current date
+        end_date = new Date(currentDate);
+    }else {
+        end_date = new Date(end_date);
+    }
     return new ServiceResponseSuccess(
         await Submission.aggregate([
             {
-                $match: {coder: new mongoose.Types.ObjectId(coder_id), isPassed: true}
+                $match: {
+                    coder: new mongoose.Types.ObjectId(coder_id),
+                    isPassed: true,
+                    submittedAt: {
+                        $gte: start_date,
+                        $lte: end_date,
+                    }
+                }
             },
             {
                 $addFields: {

@@ -3,7 +3,8 @@ import {getCoderHeatmap, getSolvedChallengesStats} from "../services/stats.servi
 
 export const heatmapController = async (req, res) => {
     const {id} = req.user
-    const response = await getCoderHeatmap(id)
+    const {start_date, end_date} = req.query
+    const response = await getCoderHeatmap(id, {start_date, end_date})
     return res.status(response.getHttpStatus()).json(response.getHttpResponse());
 }
 
