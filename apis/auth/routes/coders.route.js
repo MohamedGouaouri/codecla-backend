@@ -6,6 +6,7 @@ import { Coder } from '../models/Coder.js'
 import { roles } from '../../middlewares/auth/roles.js'
 import { authorize } from '../../middlewares/auth/authorize.middleware.js'
 import {fireBaseUpload, upload} from "../../common/upload.js";
+import {getCoderRank} from "../../grading/services/leaderboard.service.js";
 
 
 const codersRouter = express.Router();
@@ -19,14 +20,19 @@ codersRouter.get('/profile', authorize([roles.Coder]) ,async (req, res, next) =>
     })
   }
   try {
-    const user = await Coder.findById(id).select(['-__v', '-_id']).exec();
+    let user = await Coder.findById(id).select(['-__v', '-_id']).exec();
     if (!user) {
       return res.status(404).json({
         status: 'error',
         message: 'Coder not found'
       })
     }
-    return res.status(404).json({
+    // Get user rank
+    const rank = await getCoderRank(id)
+    user = user.toObject()
+    console.log(rank)
+    user['rank'] = rank
+    return res.status(200).json({
       status: 'success',
       data: user
     })
@@ -162,7 +168,6 @@ codersRouter.put("/profile", authorize([roles.Coder]), upload.single('avatar'), 
     })
   }catch (e) {
     res.status(500).end()
-
   }
 });
 

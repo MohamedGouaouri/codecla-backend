@@ -10,8 +10,8 @@ export const getCoderHeatmap = async (coder_id, {start_date, end_date}) => {
     // Check if start date is null
     if (!start_date) {
             // Set start date to current date minus one year
-            start_date = new Date(currentDate);
-            start_date.setFullYear(start_date.getFullYear() - 1);
+                start_date = new Date(currentDate);
+                start_date.setFullYear(start_date.getFullYear() - 1);
     } else {
         start_date = new Date(start_date)
     }
