@@ -168,7 +168,8 @@ const getChallengeSolutionRate = async (challengeId) => {
 const mergeStatus = async (challenges, coderId) => {
   for (let i = 0; i < challenges.length; i++) {
     const challenge = challenges[i];
-    challenge['status'] = await getChallengeStatus(challenge._id, coderId);
+    challenge['status'] = await getChallengeStatus(coderId, challenge._id);
+    console.log(challenge['status'])
     challenges[i] = challenge;
   }
   return challenges;

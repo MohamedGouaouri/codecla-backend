@@ -39,9 +39,14 @@ export const grade = async (submission, coder_id) => {
                     new SubmissionFailedException('You already passed this challenge')
                 );
             }
+
             const submission = new Submission({
                 coder: coder_id,
                 challenge: challenge_id,
+                code: {
+                    text: code,
+                    language: lang,
+                }
             })
             // Save submission
             await submission.save()
@@ -68,13 +73,14 @@ export const grade = async (submission, coder_id) => {
                     );
             }
 
+
             if (allTestsPassed(rceResp)) {
                 const score = await calculateScore(challenge, rceResp)
                 submission.isPassed = true
                 submission.grade = score
                 submission.code = {
                     language: lang,
-                    code: code,
+                    text: code,
                 }
                 await submission.save()
                 // Update coder rank
@@ -85,7 +91,15 @@ export const grade = async (submission, coder_id) => {
 
                 }).exec()
                 return new ServiceResponseSuccess(
-                    rceResp,
+                    {
+                        passed: true,
+                        score,
+                    }
+                )
+            }
+            if (rceResp.message) {
+                return new ServiceResponseFailure(
+                    new SubmissionFailedException(rceResp.message)
                 )
             }
             return new ServiceResponseFailure(
@@ -96,7 +110,6 @@ export const grade = async (submission, coder_id) => {
             new ResourceNotFoundException('No challenge found')
         )
     } catch (error) {
-        console.error(error);
         return new ServiceResponseFailure(
             new ResourceNotFoundException('Can not grade your submission')
         )
@@ -104,7 +117,7 @@ export const grade = async (submission, coder_id) => {
 }
 
 const allTestsPassed = (rceResp) => {
-    return rceResp.status === 'passed'
+    return rceResp && rceResp.status === 'passed'
 }
 
 const calculateScore = async (challenge, rceResp) => {
