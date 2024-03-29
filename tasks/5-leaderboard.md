@@ -18,5 +18,5 @@ Here's the list of tasks
 - Add a route get the top k coders (k is a number passed a query parameter).
 - Add the controller for that route
 - Add the service for that controller to get the top k coders.
-- The code of that service should be similar to the previous, you just need to `limit` the number of returned to `k`.
+- The code of that service should be similar to the previous leaderboard task, you just need to `limit` the number of returned to `k`.
 

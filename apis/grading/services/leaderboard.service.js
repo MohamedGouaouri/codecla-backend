@@ -2,6 +2,7 @@ import {Submission} from "../models/submission.model.js";
 import mongoose from "mongoose";
 import {ServiceResponseSuccess} from "../../common/service_response.js";
 import {Coder} from "../../auth/models/Coder.js";
+import delay from "delay";
 
 
 export const getLeaderboard = async () => {
@@ -12,8 +13,10 @@ export const getLeaderboard = async () => {
         })
         .select('-__v -password -email')
         .exec()
-    
+
+    leaderboard = leaderboard.map(l => l.toObject())
     leaderboard = await mergeSolvedChallenges(leaderboard)
+    leaderboard = await mergeRanks(leaderboard)
     return new ServiceResponseSuccess(leaderboard)
 }
 
@@ -78,7 +81,7 @@ export const getTopK = async (k) => {
     const topKCoders = await Coder
         .find()
         .sort({
-            rank: 1,
+            score: -1,
         })
         .limit(k)
         .select('-__v -email -password')
@@ -91,18 +94,27 @@ const getLastAssignableRank = async () => {
     const rankedCoders = await Coder
         .find()
         .sort({
-            rank: -1,
+            score: 1,
         })
         .exec()
     if(!rankedCoders || rankedCoders.length === 0) return 1;
-    return rankedCoders[0] + 1
+    return rankedCoders.length
 }
 
 const mergeSolvedChallenges = async (leaderboard) => {
     for (let i = 0; i < leaderboard.length; i++) {
-        const coder = leaderboard[i].toObject();
+        const coder = leaderboard[i];
         coder['solved_challenges'] = await getCoderSolvedChallenges(coder._id);
         leaderboard[i] = coder;
       }
       return leaderboard;
+}
+
+const mergeRanks = async (leaderboard) => {
+    for (let i = 0; i < leaderboard.length; i++) {
+        const coder = leaderboard[i];
+        coder['rank'] = await getCoderRank(coder._id);
+        leaderboard[i] = coder;
+    }
+    return leaderboard;
 }

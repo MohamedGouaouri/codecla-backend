@@ -7,6 +7,7 @@ import { roles } from '../../middlewares/auth/roles.js'
 import { authorize } from '../../middlewares/auth/authorize.middleware.js'
 import {fireBaseUpload, upload} from "../../common/upload.js";
 import {getCoderRank} from "../../grading/services/leaderboard.service.js";
+import delay from "delay";
 
 
 const codersRouter = express.Router();
@@ -72,7 +73,6 @@ codersRouter.post("/register", async (req, res) => {
         message: "coder registered successfully"
       })
     } catch (e) {
-      console.error(e)
       res.status(500).json({
         status: "error",
         message: "Couldn't create the coder",
