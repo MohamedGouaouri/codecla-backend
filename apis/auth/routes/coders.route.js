@@ -8,6 +8,7 @@ import { authorize } from '../../middlewares/auth/authorize.middleware.js'
 import {fireBaseUpload, upload} from "../../common/upload.js";
 import {getCoderRank} from "../../grading/services/leaderboard.service.js";
 import delay from "delay";
+import {sendVerificationMail} from "../../common/mail.js";
 
 
 const codersRouter = express.Router();
@@ -31,7 +32,6 @@ codersRouter.get('/profile', authorize([roles.Coder]) ,async (req, res, next) =>
     // Get user rank
     const rank = await getCoderRank(id)
     user = user.toObject()
-    console.log(rank)
     user['rank'] = rank
     return res.status(200).json({
       status: 'success',
@@ -60,17 +60,25 @@ codersRouter.post("/register", async (req, res) => {
   if (!validationResult.error) {
     const { first_name, last_name , email, password } = req.body
     const salt = await bcrypt.genSalt(parseInt(process.env.ROUNDS || 10));
-    const hashPassowrd = await bcrypt.hash(password, salt)
+    const hashPassword = await bcrypt.hash(password, salt)
     try {
-      await Coder.create({
+      const coder  = await Coder.create({
         first_name: first_name,
         last_name: last_name,
         email: email,
-        password: hashPassowrd,
+        password: hashPassword,
       })
+      const token = jwt.sign({
+        id: coder._id,
+        role: roles.Coder
+      }, 'secret', {
+        expiresIn: '1d'
+      })
+      const url = `http://localhost:3000/auth/coder/verify/${token}`
+      sendVerificationMail(email, url)
       res.json({
         status: "success",
-        message: "coder registered successfully"
+        message: "coder registered successfully, a confirmation email is sent to you, please check your inbox!"
       })
     } catch (e) {
       res.status(500).json({
@@ -170,6 +178,33 @@ codersRouter.put("/profile", authorize([roles.Coder]), upload.single('avatar'), 
     res.status(500).end()
   }
 });
+
+
+codersRouter.post("/verify/:token", async (req, res) => {
+  const {token} = req.params;
+    try {
+      jwt.verify(token, 'secret', async (err, user) => {
+        if (err) {
+          return res.status(400).send('Invalid token')
+        }
+        const {id} = user
+        const coder = await Coder.findById(id).exec()
+        if (!coder) {
+          return res.status(400).send('Bad request')
+        }
+        coder.is_verified = true
+        await coder.save()
+        // TODO: Update this to html template
+        return res.status(200).send('Email confirmed')
+      })
+    } catch (e) {
+      res.status(500).json({
+        status: "error",
+        message: "Couldn't create the coder",
+        error: e.message,
+      })
+    }
+})
 
 
 export default codersRouter;
