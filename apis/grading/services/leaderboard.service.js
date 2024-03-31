@@ -78,6 +78,7 @@ export const getCoderRank = async (coder_id) => {
 }
 
 export const getTopK = async (k) => {
+    console.log(k)
     const topKCoders = await Coder
         .find()
         .sort({

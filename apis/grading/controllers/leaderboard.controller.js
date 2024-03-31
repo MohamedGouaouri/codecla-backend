@@ -15,6 +15,6 @@ export const topkController = async (req, res) => {
         })
     }
     const k = parseInt(req.query.k) || 3
-    const response = await getTopK()
+    const response = await getTopK(k)
     return res.status(response.getHttpStatus()).json(response.getHttpResponse());
 }
