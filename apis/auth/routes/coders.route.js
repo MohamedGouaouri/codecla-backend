@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import { Coder } from '../models/Coder.js'
 import { roles } from '../../middlewares/auth/roles.js'
 import { authorize } from '../../middlewares/auth/authorize.middleware.js'
-import {fireBaseUpload, upload} from "../../common/upload.js";
+import {fireBaseUpload, supabaseUpload, upload} from "../../common/upload.js";
 import {getCoderRank} from "../../grading/services/leaderboard.service.js";
 import delay from "delay";
 import {sendVerificationMail} from "../../common/mail.js";
@@ -153,7 +153,7 @@ codersRouter.post("/login", async (req, res) => {
 codersRouter.put("/profile", authorize([roles.Coder]), upload.single('avatar'), async (req, res) => {
   const {id} = req.user
   try{
-    const downloadUrl = await fireBaseUpload(req)
+    const downloadUrl = await supabaseUpload(req)
    // Search for coder
     const coder = await Coder.findById(id).select('-__v').exec()
     if (!coder) {
