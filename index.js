@@ -7,6 +7,8 @@ import gradingRouter from './apis/grading/routes/grader.route.js';
 import { PORT } from './config/server.config.js';
 import cors from 'cors'
 import morgan from 'morgan';
+import expressGraphql from 'express-graphql'
+import {root, schema} from "./apis/graphql/index.js";
 
 const app = express();
 dotenv.config();
@@ -23,6 +25,12 @@ app.use(morgan('tiny'));
 app.use("/api/auth", authRouter)
 app.use("/api/challenges", contentRouter)
 app.use("/api/grading", gradingRouter);
+
+app.use('/graphql', expressGraphql.graphqlHTTP({
+  schema: schema,
+  rootValue: root,
+  graphiql: true
+}))
 // connect to the database
 connectDatabase().then(r => {
   app.listen(PORT, (_) =>

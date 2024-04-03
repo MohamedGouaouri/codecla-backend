@@ -6,11 +6,14 @@ import { Challenge } from "../models/Challenge.js";
 
 export const getAll = async (user, filters) => {
   const { id, role } = user;
-  const {category} = filters
+  const {category, level} = filters
   let challenges;
   let query = {}
   if (category && category != 'All') {
     query = {...query, category}
+  }
+  if (level) {
+    query = {...query, level}
   }
   switch (role) {
     case roles.Manager:
