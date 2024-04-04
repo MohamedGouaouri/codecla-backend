@@ -17,7 +17,7 @@ To complete this assignment, you need to have docker engine installed on your sy
 - Build the docker image and give a tag of `codecla-express:v1` for example.
 - Run the container
   - Before running the container, start a MongoDB server using the official MongoDB Docker image.
-  - Ensure that you publish the necessary ports and pass the required environment variables like the database URL, secret keys, etc.
+  - Ensure that you publish the necessary ports and pass the required environment variables like port number, database URL, secret keys, etc.
 - Make sure that all endpoints of your Express.js application work as expected.
 
 ### 3. Deploy nestjs application
@@ -47,6 +47,9 @@ For the production stage:
 - Build the docker image and give a tag of `codecla-nestjs:v1` for example.
 - Run the container
     - Before running the container, start a MongoDB server using the official MongoDB Docker image.
-    - Ensure that you publish the necessary ports and pass the required environment variables like the database URL.
+    - Ensure that you publish the necessary ports and pass the required environment variables like port number and database URL.
 - Make sure that all endpoints of your Nest.js application work as expected.
 
+>Important: Make sure to run your services on different ports to avoid errors.
+
+> Note: if you list the images and inspect your nest js image you'll see that it has a relatively small size (around 350MB). It would've been around 1.5GB!. Hence, the power of multi-state builds.
