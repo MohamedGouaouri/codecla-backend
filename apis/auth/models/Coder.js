@@ -9,6 +9,7 @@ const CoderSchema = new mongoose.Schema({
     about: { type: String, required: false, default: '' },
     score: { type: Number, required: true, default: 0 },
     avatar_url: { type: String, required: false, default: '' },
+    is_verified: { type: Boolean, require: true, default: false },
 }, {
     collection: "coders"
 })

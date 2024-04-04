@@ -26,14 +26,14 @@ These **FunctionInputDefinitions** consist of a name and a type, aiding **Coders
 Each **TestCase** is assigned a weight value between 0 and 1, indicating its importance relative to other TestCases. Furthermore, **TestCases** consist of a set of **FunctionInputValues** representing the inputs for the function being tested, each with a name and corresponding value.
 
 The **Coder** can submit his code for grading, on submit, a **Submission** will be created, it's related to a specific challenge
-and contains information about the submission time, whether it successfully passed the grading and also the finale score after grading.
+and contains information about the submission time, whether it successfully passed the grading, the finale score after grading and the code of the submission.
 
 
 ### Tasks
 Here's the list of tasks
 
-- Extract the entities along with their relationships.
-- Draw the diagram of the system.
+- Extract the entities and relationships along with their attributes.
+- Draw the diagram of the system's data.
 - Create `mongoose` models in your `express` backend app.
-
+- Create `mongoose` models in your `nestjs` backend app for challenges management.
 
