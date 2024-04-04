@@ -9,6 +9,8 @@ import cors from 'cors'
 import morgan from 'morgan';
 import expressGraphql from 'express-graphql'
 import {root, schema} from "./apis/graphql/index.js";
+import {authorize} from "./apis/middlewares/auth/authorize.middleware.js";
+import {roles} from "./apis/middlewares/auth/roles.js";
 
 const app = express();
 dotenv.config();
@@ -26,7 +28,7 @@ app.use("/api/auth", authRouter)
 app.use("/api/challenges", contentRouter)
 app.use("/api/grading", gradingRouter);
 
-app.use('/graphql', expressGraphql.graphqlHTTP({
+app.use('/graphql', authorize([roles.Coder, roles.Manager]), expressGraphql.graphqlHTTP({
   schema: schema,
   rootValue: root,
   graphiql: true

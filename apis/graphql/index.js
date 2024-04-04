@@ -5,8 +5,8 @@ import jwt from 'jsonwebtoken'
 
 export const schema = graphql.buildSchema(`
     type Query {
-        challenges(token: String!, category: String, level: String): [Challenge]
-        challenge(token: String!, id:  String!): Challenge
+        challenges(category: String, level: String): [Challenge]
+        challenge(id:  String!): Challenge
         categories: [String]
     }
     type Coder {
@@ -63,6 +63,7 @@ export const schema = graphql.buildSchema(`
       updatedAt: String!
       solution_rate: Float
       status: String
+      submission: Submission
     }
     type Submission {
       _id: ID!
@@ -76,26 +77,17 @@ export const schema = graphql.buildSchema(`
 `)
 
 export const root = {
-    managers: async () => {
-        return Manager.find().select('-__v').exec();
-    },
-    challenges: async (parent) => {
-        const decoded = jwt.decode(parent.token)
-        const response = await getAll({
-            id: decoded.id,
-            role: decoded.role,
-        }, {
+    challenges: async (parent, args) => {
+        const user = args.user
+        const response = await getAll(user, {
             category: parent.category,
             level: parent.level,
         })
         return response.data
     },
     challenge: async (parent, args, context, info) => {
-        const decoded = jwt.decode(parent.token)
-        const response = await getChallengeById(parent.id, {
-            id: decoded.id,
-            role: decoded.role,
-        })
+        const user = args.user
+        const response = await getChallengeById(parent.id, user)
         return response.data
     },
     categories: async () => {
