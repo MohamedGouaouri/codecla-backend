@@ -7,7 +7,7 @@
 */
 import axios from 'axios'
 import { Challenge } from "../../challenges/models/Challenge.js";
-import { PY_RCE_SERVER, JS_RCE_SERVER } from '../../../config/server.config.js';
+import { RCE_SERVER } from '../../../config/server.config.js';
 import { ServiceResponseFailure, ServiceResponseSuccess } from '../../common/service_response.js';
 import { ResourceNotFoundException, SubmissionFailedException } from '../../common/exceptions.js';
 import { Submission } from '../models/submission.model.js';
@@ -59,20 +59,7 @@ export const grade = async (submission, coder_id) => {
                 tests
             }
             // Invoke rce
-            let rceResp
-            switch (lang) {
-                case 'py':
-                    rceResp = await (await axios.post(PY_RCE_SERVER, rceReq)).data
-                    break;
-                case 'js':
-                        rceResp = await (await axios.post(JS_RCE_SERVER, rceReq)).data
-                        break;
-                default:
-                    return new ServiceResponseFailure(
-                        new SubmissionFailedException('Non supported language')
-                    );
-            }
-
+            const rceResp = await (await axios.post(RCE_SERVER, rceReq)).data
 
             if (allTestsPassed(rceResp)) {
                 const score = await calculateScore(challenge, rceResp)
