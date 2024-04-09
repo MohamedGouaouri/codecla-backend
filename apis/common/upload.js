@@ -7,9 +7,8 @@ import { createClient } from '@supabase/supabase-js'
 
 dotenv.config()
 
-console.log(process.env['SUPABASE_KEY'])
 // Create a single supabase client for interacting with your database
-const supabase = createClient(process.env['SUPABASE_PROJECT'], process.env['SUPABASE_KEY'])
+// const supabase = createClient(process.env['SUPABASE_PROJECT'], process.env['SUPABASE_KEY'])
 
 const storage = getStorage(app)
 

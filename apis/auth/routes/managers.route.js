@@ -87,7 +87,7 @@ managersRouter.post("/login", async (req, res) => {
     // 2. Generate toke with role
     const token = jwt.sign({
       id: manager._id,
-      role: roles.Manager
+      email: manager.email
     }, 'secret', {
       expiresIn: 36000
     })

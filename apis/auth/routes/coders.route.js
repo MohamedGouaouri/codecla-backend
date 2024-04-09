@@ -9,6 +9,7 @@ import {fireBaseUpload, supabaseUpload, upload} from "../../common/upload.js";
 import {getCoderRank} from "../../grading/services/leaderboard.service.js";
 import delay from "delay";
 import {sendVerificationMail} from "../../common/mail.js";
+import { HOST, PORT } from '../../../config/server.config.js'
 
 
 const codersRouter = express.Router();
@@ -70,12 +71,12 @@ codersRouter.post("/register", async (req, res) => {
       })
       const token = jwt.sign({
         id: coder._id,
-        role: roles.Coder
+        email: coder.email
       }, 'secret', {
         expiresIn: '1d'
       })
-      const url = `http://localhost:3000/auth/coder/verify/${token}`
-      sendVerificationMail(email, url)
+      const url = `http://${HOST}:${PORT}/auth/coder/verify/${token}`
+      // sendVerificationMail(email, url)
       res.json({
         status: "success",
         message: "coder registered successfully, a confirmation email is sent to you, please check your inbox!"
@@ -117,7 +118,6 @@ codersRouter.post("/login", async (req, res) => {
     }
     // coder found
     // 1. Compare password
-    console.log(coder)
     const passwordDoesMatch = await bcrypt.compare(password, coder.password)
     if (!passwordDoesMatch) {
       return res.status(401).json({
@@ -129,7 +129,7 @@ codersRouter.post("/login", async (req, res) => {
     // 2. Generate toke with role
     const token = jwt.sign({
       id: coder._id,
-      role: roles.Coder
+      email: coder.email
     }, 'secret', {
       expiresIn: 36000
     })
